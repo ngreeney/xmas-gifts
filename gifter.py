@@ -99,17 +99,17 @@ f2 = open(outFname, 'w')
 k=0
 name_email = {}
 for line in f:
-    print('Line: ',line)
+#    print('Line: ',line)
     name_email[k] = line.split()
     k = k+1
-print(name_email)
+#print(name_email)
 
 # randomly choose assingnments  
 satisfied = 0
 full_list = range(k)
 count = 0
 while not satisfied and count<100:
-    print('trial %d' % count)
+#    print('trial %d' % count)
     receiver  = {} 
     remainder = list(full_list)
     
@@ -120,11 +120,17 @@ while not satisfied and count<100:
     satisfied = 1 
     for i in range(k):
         if receiver[i] == i: #giving to themself
+            print("Trial {}: Giving to Themself".format(count))
             satisfied = 0
+            break
         if receiver[receiver[i]] == i: #giving to the giver
+            print("Trial {}: Giving to Giver".format(count))
             satisfied = 0
-        if name_email[receiver[i]][-1] == name_email[i][-1]: #giving to SigOther
+            break
+        if name_email[receiver[i]][-1] == name_email[i][0]: #giving to SigOther
+            print("Trial {}: Giving to SO, {} to {}".format(count,name_email[receiver[i]][0],name_email[i][0]))
             satisfied = 0
+            break
 
     count += 1
 if count>=100:
