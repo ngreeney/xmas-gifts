@@ -5,6 +5,8 @@ class oneliner:
   def __init__(self):
     self.opts = {} # dictionary of 3-tuples for options
     self.helpmsg = '\n command line options expected: \n'
+    
+    
   # add options, one at a time
   def addopt(self, optname, optval, helptxt='', opttype=0):
     if opttype == 0:
@@ -14,16 +16,17 @@ class oneliner:
     elif opttype == 'float':
       optval = float(optval)
 
-    if self.opts.has_key(optname):
+    if optname in self.opts:
       if len(helptxt) == 0:
         helptxt = self.opts[optname][3]
       self.opts[optname] = [self.opts[optname][0], optval, opttype, helptxt]
     else:
       self.opts[optname] = [len(self.opts),optval, opttype, helptxt]
 
+
   # get option, if set
   def getopt(self, optname):
-    if self.opts.has_key(optname):
+    if optname in self.opts:
       self.fixtype(optname)
       return self.opts[optname][1]
     else:
@@ -47,7 +50,7 @@ class oneliner:
  
 
       # if option was explicitly added (via addopt, say) overwrite value only 
-      if self.opts.has_key(key):
+      if key in self.opts:
         self.opts[key][1] = value
       # otherwise, use a default value and help string
       else:
@@ -89,7 +92,7 @@ class oneliner:
           value = w.strip().replace('  ',' ').replace('  ',' ').split(' ')
           w=w.replace(' ','')
        
-        if self.opts.has_key(key):
+        if key in self.opts:
           if len(value) == 1:
             if self.opts[key][2] == 'int':
               self.opts[key][1] = int(value[0])
@@ -115,9 +118,9 @@ class oneliner:
 
   def printopts(self):
     
-    if self.opts.has_key('help'):
+    if 'help' in self.opts:
       if self.opts['help'][1]:
-        print self.helpmsg
+        print(self.helpmsg)
 
     oploop = self.opts.keys()
     strops = [['' for _ in range(4)] for _ in range(len(oploop))]    
@@ -145,14 +148,14 @@ class oneliner:
 
     i = 0
     for op in oploop:
-      print '  %s = %s %s  %s' % (strops[i][0].ljust(widths[0]), strops[i][1].ljust(widths[1]), strops[i][2].ljust(widths[2]), strops[i][3].ljust(widths[3]))  
+      print('  %s = %s %s  %s' % (strops[i][0].ljust(widths[0]), strops[i][1].ljust(widths[1]), strops[i][2].ljust(widths[2]), strops[i][3].ljust(widths[3]))  )
       i += 1 
 
-    print ''
+    print('')
 
 
   def fixtype(self, optname):
-    if self.opts.has_key(optname):
+    if optname in self.opts:
       if type(self.opts[optname][1]).__name__ == 'list':
         for i in range(len(self.opts[optname][1])):
           if self.opts[optname][2] == 'int':

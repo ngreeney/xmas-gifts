@@ -29,15 +29,15 @@
 
 
 
-from numpy import *
-import scipy
-import scipy.io
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+#import numpy as np
+#import scipy
+#import scipy.io
+#import matplotlib
+#matplotlib.use('Agg')
+#import matplotlib.pyplot as plt
 import sys
 
-import numpy.random
+import numpy.random as random
 
 import sb
 
@@ -83,9 +83,9 @@ outFname   = options.getopt('outFname')
 optsFname  = options.getopt('optsFname')
 
 if seed is -1:
-   print 'seed is set to -1, or no seed given'
+   print('seed is set to -1, or no seed given')
 else:
-   numpy.random.seed(seed)
+   random.seed(seed)
 
 
 
@@ -99,33 +99,38 @@ f2 = open(outFname, 'w')
 k=0
 name_email = {}
 for line in f:
-  name_email[k] = line.split()
-  k = k+1
-
+    print('Line: ',line)
+    name_email[k] = line.split()
+    k = k+1
+print(name_email)
 
 # randomly choose assingnments  
 satisfied = 0
 full_list = range(k)
 count = 0
-while not satisfied:
-  print 'trial %d' % count
-  receiver  = {} 
-  remainder = list(full_list)
-  
-  for i in xrange(k):
-    receiver[i] = remainder.pop(numpy.floor(len(remainder)*numpy.random.rand(1)))
-  
-  # check
-  satisfied = 1 
-  for i in xrange(k):
-    if receiver[i] == i: 
-      satisfied = 0
-    if receiver[receiver[i]] == i: 
-      satisfied = 0
+while not satisfied and count<100:
+    print('trial %d' % count)
+    receiver  = {} 
+    remainder = list(full_list)
+    
+    for i in range(k):
+        receiver[i] = remainder.pop(random.randint(0,len(remainder)))
+    
+    # check
+    satisfied = 1 
+    for i in range(k):
+        if receiver[i] == i: #giving to themself
+            satisfied = 0
+        if receiver[receiver[i]] == i: #giving to the giver
+            satisfied = 0
+        if name_email[receiver[i]][-1] == name_email[i][-1]: #giving to SigOther
+            satisfied = 0
 
-  count += 1
-
-print receiver
+    count += 1
+if count>=100:
+    print('Too many attempts')
+    sys.exit()
+print('Reveiver:',receiver)
 
 
 
@@ -133,18 +138,18 @@ print receiver
 
 
 # first a summary, both to screen and to file
-print 'Summary:'
+print('Summary:')
 f2.write('\nSummary:\n\n')
 
-for i in xrange(k):
+for i in range(k):
 
-  print name_email[i][0].ljust(15)+' gives a gift to     '+name_email[receiver[i]][0]
+  print(name_email[i][0].ljust(15)+' gives a gift to     '+name_email[receiver[i]][0])
   f2.write(name_email[i][0].ljust(15)+' gives a gift to     '+name_email[receiver[i]][0]+'\n')
 
 
 
 # then the text for the individual emails
-for i in xrange(k):
+for i in range(k):
   f2.write(bar)
   f2.write('\nTo:\n\n'+name_email[i][1]+'\n\n')
   f2.write('Dear '+name_email[i][0]+',\n')
