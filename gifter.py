@@ -38,6 +38,8 @@
 import sys
 
 import numpy.random as random
+from email.mime.text import MIMEText
+import smtplib
 
 import sb
 
@@ -47,6 +49,43 @@ def ensurelist(listorother):
   else:
     return [listorother]
 
+def sendEmail():
+    try:
+        message = (service.users().messages().send(userId=user_id, body=message)
+                   .execute())
+        print('Message Id: %s' % message['id'])
+        return message
+    except Exception:
+        print('An error occurred: %s' % Exception)
+
+def get_credentials():
+    """Gets valid user credentials from storage.
+
+    If nothing has been stored, or if the stored credentials are invalid,
+    the OAuth2 flow is completed to obtain the new credentials.
+
+    Returns:
+        Credentials, the obtained credential.
+    """
+    home_dir = os.path.expanduser('~')
+    credential_dir = os.path.join(home_dir, '.credentials')
+    if not os.path.exists(credential_dir):
+        os.makedirs(credential_dir)
+    credential_path = os.path.join(credential_dir,
+                                   'gmail-python-quickstart.json')
+
+    store = Storage(credential_path)
+    credentials = store.get()
+    if not credentials or credentials.invalid:
+        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+        flow.user_agent = APPLICATION_NAME
+        if flags:
+            credentials = tools.run_flow(flow, store, flags)
+        else: # Needed only for compatibility with Python 2.6
+            credentials = tools.run(flow, store)
+        print('Storing credentials to ' + credential_path)
+    return credentials
+
 
 # initialize class to read options
 options = sb.oneliner()
@@ -54,8 +93,8 @@ options.helpmsg = ('usage: \n       > python baroc.py <options-list>\n'+
     'example:'+
     '\noptions:\n') 
 options.addopt('seed',                   -1,'seed for random number generator','int')
-options.addopt('inFname',      'infile.dat','input filename for matrix','str')
-options.addopt('outFname',    'outfile.dat','output filename for matrix','str')
+options.addopt('inFname',      'infileKid.in','input filename for matrix','str')
+options.addopt('outFname',    'outfileKid.out','output filename for matrix','str')
 options.addopt('optsFname',            None,'options file','str')
 
 # read in commandline to get options filename, help
@@ -108,7 +147,8 @@ for line in f:
 satisfied = 0
 full_list = range(k)
 count = 0
-while not satisfied and count<100:
+maxTries = 300
+while not satisfied and count<maxTries:
 #    print('trial %d' % count)
     receiver  = {} 
     remainder = list(full_list)
@@ -119,6 +159,7 @@ while not satisfied and count<100:
     # check
     satisfied = 1 
     for i in range(k):
+        print(i, name_email[i][0],name_email[receiver[i]][-1])
         if receiver[i] == i: #giving to themself
             print("Trial {}: Giving to Themself".format(count))
             satisfied = 0
@@ -127,13 +168,21 @@ while not satisfied and count<100:
             print("Trial {}: Giving to Giver".format(count))
             satisfied = 0
             break
-        if name_email[receiver[i]][-1] == name_email[i][0]: #giving to SigOther
+        if name_email[receiver[i]][-2] == name_email[i][0]: #giving to SigOther
             print("Trial {}: Giving to SO, {} to {}".format(count,name_email[receiver[i]][0],name_email[i][0]))
+            satisfied = 0
+            break
+        if name_email[receiver[i]][0] == name_email[i][-1]:#giving to last year
+            print("Trial {}: Giving same as Last Year, {} to {}".format(count,name_email[receiver[i]][0],name_email[i][0]))
+            satisfied = 0
+            break
+        if name_email[receiver[i]][0] == name_email[i][-2]:#giving to 2 years ago
+            print("Trial {}: Giving same as Last Year, {} to {}".format(count,name_email[receiver[i]][0],name_email[i][0]))
             satisfied = 0
             break
 
     count += 1
-if count>=100:
+if count>=maxTries:
     print('Too many attempts')
     sys.exit()
 print('Reveiver:',receiver)
@@ -155,13 +204,17 @@ for i in range(k):
 
 
 # then the text for the individual emails
-for i in range(k):
-  f2.write(bar)
-  f2.write('\nTo:\n\n'+name_email[i][1]+'\n\n')
-  f2.write('Dear '+name_email[i][0]+',\n')
-  f2.write('     You are invited to participate in the holiday gift exchange.    Your assignment is to give a gift to '+name_email[receiver[i]][0]+'.\n\n')
-  f2.write('              Sincerely,\n')
-  f2.write('              The Gift-Exchange-O-Matic, version 0.2014.0\n')
+#for i in range(k):
+#  f2.write(bar)
+#  message = MIMEText('\nTo:\n\n'+name_email[i][1]+'\n\n'+
+#          'Dear '+name_email[i][0]+',\n'+
+#          '     You are invited to participate in the holiday gift exchange.    Your assignment is to give a gift to '+name_email[receiver[i]][0]+' with approximately value of $100.\n\n'+
+#          '              Sincerely,\n'+
+#          '              The Gift-Exchange-O-Matic, version 0.2017.0\n')
+#  message['to'] = 'ngreeney@gmail.com'
+#  message['from'] = 'ngreeney@gmail.com'
+#  message['subject'] = 'Sanders Xmas Exchange'
+#  raw = base64.urlsafe_b64encode(message.as_string())
 
 
 
