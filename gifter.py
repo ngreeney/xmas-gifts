@@ -13,17 +13,17 @@
 #
 # FOR SOME FUTURE VERSION:
 #
-# usage: 
+# usage:
 #        > python gifter.py <options-list>
 #
-# example: 
-#   > python gifter.py -seed 20141123 -inFname usbank2014.in -outFname usbank2014.out  
+# example:
+#   > python gifter.py -seed 20141123 -inFname usbank2014.in -outFname usbank2014.out
 #
 # options:
-#  
-#  -seed       <int>     seed for random number generator 
-#  -inFname    <str>     input csv file 
-#  -outFname   <str>     output text file 
+#
+#  -seed       <int>     seed for random number generator
+#  -inFname    <str>     input csv file
+#  -outFname   <str>     output text file
 #  -optsFname  <str>     file for input options
 #
 
@@ -91,7 +91,7 @@ def get_credentials():
 options = sb.oneliner()
 options.helpmsg = ('usage: \n       > python baroc.py <options-list>\n'+
     'example:'+
-    '\noptions:\n') 
+    '\noptions:\n')
 options.addopt('seed',                   -1,'seed for random number generator','int')
 options.addopt('inFname',      'infileKid.in','input filename for matrix','str')
 options.addopt('outFname',    'outfileKid.out','output filename for matrix','str')
@@ -100,7 +100,7 @@ options.addopt('optsFname',            None,'options file','str')
 # read in commandline to get options filename, help
 options.parsecmd(sys.argv)
 
-# if help is specified, do the help message 
+# if help is specified, do the help message
 if options.getopt('help'):
   options.printopts()
   sys.exit(0)
@@ -143,21 +143,21 @@ for line in f:
     k = k+1
 #print(name_email)
 
-# randomly choose assingnments  
+# randomly choose assingnments
 satisfied = 0
 full_list = range(k)
 count = 0
-maxTries = 300
+maxTries = 500
 while not satisfied and count<maxTries:
 #    print('trial %d' % count)
-    receiver  = {} 
+    receiver  = {}
     remainder = list(full_list)
-    
+
     for i in range(k):
         receiver[i] = remainder.pop(random.randint(0,len(remainder)))
-    
+
     # check
-    satisfied = 1 
+    satisfied = 1
     for i in range(k):
         print(i, name_email[i][0],name_email[receiver[i]][-1])
         if receiver[i] == i: #giving to themself
@@ -168,7 +168,7 @@ while not satisfied and count<maxTries:
             print("Trial {}: Giving to Giver".format(count))
             satisfied = 0
             break
-        if name_email[receiver[i]][-2] == name_email[i][0]: #giving to SigOther
+        if name_email[receiver[i]][0] == name_email[i][2]: #giving to SigOther
             print("Trial {}: Giving to SO, {} to {}".format(count,name_email[receiver[i]][0],name_email[i][0]))
             satisfied = 0
             break
@@ -177,7 +177,7 @@ while not satisfied and count<maxTries:
             satisfied = 0
             break
         if name_email[receiver[i]][0] == name_email[i][-2]:#giving to 2 years ago
-            print("Trial {}: Giving same as Last Year, {} to {}".format(count,name_email[receiver[i]][0],name_email[i][0]))
+            print("Trial {}: Giving same as 2 Years Ago, {} to {}".format(count,name_email[receiver[i]][0],name_email[i][0]))
             satisfied = 0
             break
 
@@ -220,6 +220,3 @@ for i in range(k):
 
 f.close()
 f2.close()
-
-
-
